@@ -69,6 +69,7 @@ async function doMeeting() {
     return;
   }
   try {
+    //Send request to service(API Gateway > Lambda function) to start/join meeting.
     var response = await fetch(requestPath, {
       method: "POST",
       headers: {
@@ -139,7 +140,7 @@ async function doMeeting() {
       eventDidReceive(name, attributes) {
         switch (name) {
           case "meetingEnded":
-            cleanup();
+            //   cleanup();
             console.log("NOTE: Meeting Ended", attributes);
             break;
           case "meetingReconnected":
@@ -252,10 +253,6 @@ function refreshAttendeesDisplay() {
 
 // Stop Meeting
 async function stopMeeting() {
-	if (!window.meetingSession) {
-        console.error("Meeting session is null");
-        return;
-    }
   try {
     var response = await fetch(requestPath, {
       method: "POST",
@@ -305,16 +302,40 @@ async function exitMeeting() {
 
 // Reset
 function cleanup() {
-  meetingSession.deviceController.destroy();
-  window.meetingSession = null;
-  //if meeting host - don't preserve the meeting id.
-  if (isMeetingHost) {
-    meetingId = null;
+  try {
+    meetingSession.deviceController.destroy();
+    window.meetingSession = null;
+    //if meeting host - don't preserve the meeting id.
+    if (isMeetingHost) {
+      meetingId = null;
+    }
+    document.getElementById("video-list").replaceChildren();
+    attendees.clear();
+    document.getElementById("meeting-link").innerText = "";
+    refreshAttendeesDisplay();
+  } catch (err) {
+    console.log("Error : ", err);
   }
-  document.getElementById("video-list").replaceChildren();
-  attendees.clear();
-  document.getElementById("meeting-link").innerText = "";
-  refreshAttendeesDisplay();
+}
+
+async function startScreenShare() {
+  try {
+    await meetingSession.audioVideo.startContentShareFromScreenCapture();
+    shareButton.innerText = "Stop Screen Share";
+    isScreenShared = true;
+  } catch (err) {
+    console.error("Error starting screen share: " + err);
+  }
+}
+
+async function stopScreenShare() {
+  try {
+    await meetingSession.audioVideo.stopContentShare();
+    shareButton.innerText = "Start Screen Share";
+    isScreenShared = false;
+  } catch (err) {
+    console.error("Error stopping screen share: " + err);
+  }
 }
 
 // Toggle Screen Share
@@ -322,13 +343,14 @@ async function share() {
   try {
     if (window.meetingSession) {
       if (isScreenShared) {
-        await meetingSession.audioVideo.stopContentShare();
-        shareButton.innerText = "Start Screen Share";
-        isScreenShared = false;
+        await stopScreenShare();
       } else {
-        await meetingSession.audioVideo.startContentShareFromScreenCapture();
-        shareButton.innerText = "Stop Screen Share";
-        isScreenShared = true;
+        if(navigator.mediaDevices.getDisplayMedia){
+			console.log("Screen sharing is supported");
+			await startScreenShare();
+		}else{
+			alert("Screen sharing is not supported on this browser");
+		}
       }
     } else {
       alert("Please start or join a meeting first!");

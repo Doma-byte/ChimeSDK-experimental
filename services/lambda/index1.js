@@ -17,8 +17,8 @@ app.use(express.json());
 
 AWS.config.update({ region: "us-east-1" });
 AWS.config.credentials = new AWS.Credentials(
-  "AKIAXZ527BUBI4NRVS5C",
-  "zzsrnoIVUUsPRQAaiqxFyOyhN6k7dFfsyAOgcve/"
+  "AKIAW3KP5A5KONF6CFES",
+  "uoIrwt4n3zhqPj9hBcNnPoQ4MCsLXuSayDLJNsiL"
 );
 const chime = new AWS.Chime();
 chime.endpoint = new AWS.Endpoint(
@@ -98,7 +98,8 @@ async function doMeeting(event) {
 }
 
 async function deleteAttendee(event) {
-  const body = JSON.parse(event.body);
+  const body = event.body;
+  console.log("Exit meeting is :",body);
   const deleteRequest = await chime
     .deleteAttendee({
       MeetingId: body.MEETING_ID,
