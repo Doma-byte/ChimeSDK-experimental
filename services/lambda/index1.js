@@ -17,8 +17,8 @@ app.use(express.json());
 
 AWS.config.update({ region: "us-east-1" });
 AWS.config.credentials = new AWS.Credentials(
-  "AKIAXZ527BUBI4NRVS5C",
-  "zzsrnoIVUUsPRQAaiqxFyOyhN6k7dFfsyAOgcve/"
+  "",
+  ""
 );
 const chime = new AWS.Chime();
 chime.endpoint = new AWS.Endpoint(
