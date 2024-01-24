@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden'
   },
   video: {
-    width: '45%',
+    width: '100%',
     margin: '1%',
     aspectRatio: 16 / 9,
   },
@@ -57,6 +57,11 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     width: 20,
     height: 20
+  },
+  ringingText:{
+    alignContent: 'center',
+    textAlign: 'center',
+    justifyContent: 'center',
   },
   inputBox: {
     height: 40,
