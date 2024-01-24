@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TextInput, Button, Alert } from 'react-native';
+import Clipboard from '@react-native-clipboard/clipboard';
 import UUIDGenerator from "react-native-uuid-generator";
 import styles from '../Style';
 
@@ -26,6 +27,10 @@ export class Login extends React.Component {
     this.generateUniqueMeetingName();
   }
 
+  handleCopyToClipboard = () => {
+    Clipboard.setString(this.state.meetingName);
+    Alert.alert('Copied to Clipboard');
+  }
   startMeeting = () => {
     if (!this.state.userName) {
       Alert.alert("User name cannot be empty");
@@ -37,13 +42,16 @@ export class Login extends React.Component {
   renderForm() {
     return (
       <React.Fragment>
+        <View style={styles.viewContainer}>
         <TextInput
           style={styles.inputBox}
           value={this.state.meetingName}
           editable={false}
           placeholder="Auto-generated UUID"
         />
-        <Button title='Generate UUID' onPress={this.handleGenerateUUID}></Button>
+            <Button title="Copy" onPress={this.handleCopyToClipboard} />
+          </View>
+            <Button title="Generate UUID" onPress={this.handleGenerateUUID} />
        <TextInput
           style={styles.inputBox}
           placeholder="Your Name"
@@ -61,7 +69,7 @@ export class Login extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Mobile SDK Demo</Text>
+        <Text style={styles.title}>Chime Demo</Text>
         { !!this.props.isLoading ? this.renderLoading() : this.renderForm() }
       </View>
     );

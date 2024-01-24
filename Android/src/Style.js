@@ -15,6 +15,11 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: '700'
   },
+  viewContainer: {
+    width: '90%',
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+  },
   subtitle: {
     marginBottom: 25,
     marginTop: 10,
