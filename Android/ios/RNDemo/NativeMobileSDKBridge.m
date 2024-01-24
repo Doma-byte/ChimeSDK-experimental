@@ -260,4 +260,47 @@ RCT_EXPORT_METHOD(sendDataMessage:(NSString* _Nonnull)topic data:(NSString* _Non
   [meetingSession.audioVideo realtimeSendDataMessageWithTopic:topic data:data lifetimeMs:lifetimeMs error:nil];
 }
 
+RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(getAudieDevicesList)
+{
+  NSArray *deviceList = [meetingSession.audioVideo listAudioDevices];
+  NSArray *transformedList = [NSArray array];
+
+  for (MediaDevice * device in deviceList) {
+    transformedList = [transformedList arrayByAddingObject:@{
+      @"label": device.label,
+      @"type": [NSString stringWithFormat:@"%i", device.type],
+    }];
+  }
+
+  return @{@"devices":transformedList};;
+}
+
+RCT_EXPORT_METHOD(switchCamera:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    if (!self.meetingSession || !self.meetingSession.audioVideo) {
+        reject(@"SWITCH_CAMERA_ERROR", @"Meeting session or audioVideo is null", nil);
+        return;
+    }
+
+    id<MobileRTCVideoService> videoService = self.meetingSession.audioVideo.videoService;
+    
+    if (!videoService) {
+        reject(@"SWITCH_CAMERA_ERROR", @"Video service is null", nil);
+        return;
+    }
+
+    if (!videoService.isLocalVideoStarted) {
+        resolve(@"Camera switched successfully");
+        return;
+    }
+
+    NSError *error;
+    [videoService switchCamera:&error];
+
+    if (error) {
+        reject(@"SWITCH_CAMERA_ERROR", [NSString stringWithFormat:@"Error switching camera: %@", error.localizedDescription], nil);
+    } else {
+        resolve(@"Camera switched successfully");
+    }
+}
 @end
