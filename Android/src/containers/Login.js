@@ -10,6 +10,7 @@ export class Login extends React.Component {
     this.state = {
       meetingName: "",
       userName: "",
+      userProvidedMeetingId: "", 
     };
   }
 
@@ -35,7 +36,8 @@ export class Login extends React.Component {
     if (!this.state.userName) {
       Alert.alert("User name cannot be empty");
     } else {
-      this.props.onSubmit(this.state.meetingName, this.state.userName);
+      const meetingId = this.state.userProvidedMeetingId || this.state.meetingName;
+      this.props.onSubmit(meetingId, this.state.userName);
     }
   }
 
@@ -46,8 +48,8 @@ export class Login extends React.Component {
         <TextInput
           style={styles.inputBox}
           value={this.state.meetingName}
-          editable={false}
-          placeholder="Auto-generated UUID"
+          placeholder="Meeting ID" 
+          onChangeText={(val) => this.setState({ meetingName: val.trim() })}
         />
             <Button title="Copy" onPress={this.handleCopyToClipboard} />
           </View>
