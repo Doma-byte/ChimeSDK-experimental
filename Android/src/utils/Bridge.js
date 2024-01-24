@@ -5,12 +5,13 @@ const _eventEmitter = new NativeEventEmitter(NativeModules.NativeMobileSDKBridge
 export const MobileSDKEvent = {
   OnMeetingStart: 'OnMeetingStart',
   OnMeetingEnd: 'OnMeetingEnd',
+  OnAddVideoTile: 'OnAddVideoTile',
+  OnRemoveVideoTile: 'OnRemoveVideoTile',
   OnAttendeesJoin: 'OnAttendeesJoin',
   OnAttendeesLeave: 'OnAttendeesLeave',
   OnAttendeesMute: 'OnAttendeesMute',
   OnAttendeesUnmute: 'OnAttendeesUnmute',
-  OnAddVideoTile: 'OnAddVideoTile',
-  OnRemoveVideoTile: 'OnRemoveVideoTile',
+  OnAudioDeviceChanged: 'OnAudioDeviceChanged',
   OnDataMessageReceive: 'OnDataMessageReceive',
   OnError: 'OnError',
 }
@@ -27,8 +28,12 @@ export const NativeFunction = {
   startMeeting: NativeModules.NativeMobileSDKBridge.startMeeting,
   stopMeeting: NativeModules.NativeMobileSDKBridge.stopMeeting,
   setMute: NativeModules.NativeMobileSDKBridge.setMute,
+  setAudioDevice: NativeModules.NativeMobileSDKBridge.setAudioDevice,
+  getAudioDevicesList: NativeModules.NativeMobileSDKBridge.getAudieDevicesList,
   setCameraOn: NativeModules.NativeMobileSDKBridge.setCameraOn,
   bindVideoView: NativeModules.NativeMobileSDKBridge.bindVideoView,
   unbindVideoView: NativeModules.NativeMobileSDKBridge.unbindVideoView,
+  switchCamera: NativeModules.NativeMobileSDKBridge.switchCamera,
   sendDataMessage: NativeModules.NativeMobileSDKBridge.sendDataMessage,
+  switchMicrophoneToSpeaker: NativeModules.NativeMobileSDKBridge.switchMicrophoneToSpeaker,
 }
