@@ -1,7 +1,7 @@
-import {YOUR_SERVER_URL, YOUR_SERVER_REGION} from '@env';
+// import {YOUR_SERVER_URL, YOUR_SERVER_REGION} from '@env';
 
-const SERVER_URL = YOUR_SERVER_URL;
-const SERVER_REGION = YOUR_SERVER_REGION;
+const SERVER_URL = '';
+const SERVER_REGION = 'us-east-1'
 
 export function createMeetingRequest(meetingName, attendeeName) {
 
