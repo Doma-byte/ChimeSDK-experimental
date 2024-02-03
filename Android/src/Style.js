@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 30,
-    fontWeight: '700'
+    fontWeight: '700',
   },
   viewContainer: {
     width: '90%',
