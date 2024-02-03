@@ -1,8 +1,3 @@
-/*
- * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
- * SPDX-License-Identifier: MIT-0
- */
-
 package com.amazonaws.services.chime.rndemo;
 
 import android.app.Application;
@@ -15,9 +10,12 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.config.ReactFeatureFlags;
 import com.facebook.soloader.SoLoader;
-
+import com.amazonaws.services.chime.rndemo.RNRingtonePackage;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.os.Build;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -31,6 +29,7 @@ public class MainApplication extends Application implements ReactApplication {
                 @Override
                 protected List<ReactPackage> getPackages() {
                     List<ReactPackage> packages = new PackageList(this).getPackages();
+                    packages.add(new RNRingtonePackage());
                     packages.add(new NativeMobileSDKBridgePackage());
                     return packages;
                 }
@@ -50,6 +49,16 @@ public class MainApplication extends Application implements ReactApplication {
     public void onCreate() {
         System.loadLibrary("c++_shared");
         super.onCreate();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        NotificationChannel channel = new NotificationChannel(
+            "default",
+            "Default",
+            NotificationManager.IMPORTANCE_HIGH
+        );
+        channel.setDescription("Default channel");
+        NotificationManager notificationManager = getSystemService(NotificationManager.class);
+        notificationManager.createNotificationChannel(channel);
+    }
         SoLoader.init(this, /* native exopackage */ false);
         initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
     }
