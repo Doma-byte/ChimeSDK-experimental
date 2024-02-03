@@ -35,7 +35,7 @@ export class Login extends React.Component {
   startMeeting = () => {
     if (!this.state.userName) {
       Alert.alert("User name cannot be empty");
-    } else {
+    } else { 
       const meetingId = this.state.userProvidedMeetingId || this.state.meetingName;
       this.props.onSubmit(meetingId, this.state.userName);
     }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, FlatList, Alert, TouchableOpacity } from "react-native";
 import styles from "../Style";
 import {
@@ -12,14 +12,11 @@ import { MuteButton } from "../components/MuteButton";
 import { HangOffButton } from "../components/HangOffButton";
 import { AttendeeItem } from "../components/AttendeeItem";
 import { CameraButton } from "../components/CameraButton";
-import Sound from "react-native-sound";
-import ringtone from "../assets/ringtone.mp3";
-import {SwitchCameraButton} from "../components/SwitchCameraButton";
+import { SwitchCameraButton } from "../components/SwitchCameraButton";
 import { SwitchMicrophoneToSpeakerButton } from "../components/SwitchMicrophoneToSpeakerButton";
 
 // Maps attendee Id to attendee Name
 const attendeeNameMap = {};
-Sound.setCategory("Playback", true);
 
 export class Meeting extends React.Component {
   constructor() {
@@ -31,22 +28,20 @@ export class Meeting extends React.Component {
       selfVideoEnabled: false,
       meetingTitle: "",
       screenShareTile: null,
-      isRinging: false,
     };
-    this.ringSound = new Sound(ringtone, Sound.MAIN_BUNDLE, (error) => {
-      if (error) {
-        console.error("Failed to load the sound", error);
-      } else {
-        this.ringSound.setVolume(1.0);
-      }
-    });
+    this.cameraButtonRef = React.createRef();
+    this.onHangOffPress = this.onHangOffPress.bind(this);
   }
-
 
   componentDidMount() {
     /**
      * Attendee Join and Leave handler
      */
+    // console.log("PRops are : ",this.props.props.navigation);
+    setTimeout(() => {
+      NativeFunction.setCameraOn(true);
+    }, 1000);
+
     this.onAttendeesJoinSubscription = getSDKEventEmitter().addListener(
       MobileSDKEvent.OnAttendeesJoin,
       ({ attendeeId, externalUserId }) => {
@@ -116,13 +111,7 @@ export class Meeting extends React.Component {
             selfVideoEnabled: tileState.isLocal
               ? true
               : oldState.selfVideoEnabled,
-            isRinging: true,
           }));
-          if (this.ringSound) {
-            this.ringSound.setNumberOfLoops(-1);
-            this.ringSound.play();
-            this.fetchAudioDevicesList();
-          }
         }
       }
     );
@@ -144,11 +133,7 @@ export class Meeting extends React.Component {
             selfVideoEnabled: tileState.isLocal
               ? false
               : oldState.selfVideoEnabled,
-            isRinging: false,
           }));
-          if (this.ringSound) {
-            this.ringSound.stop();
-          }
         }
       }
     );
@@ -211,31 +196,28 @@ export class Meeting extends React.Component {
     if (this.onErrorSubscription) {
       this.onErrorSubscription.remove();
     }
-    if (this.ringSound) {
-      this.ringSound.release();
-    }
   }
 
-  fetchAudioDevicesList = async () => {
-    const deviceList = await NativeFunction.getAudioDevicesList();
-    console.log("Device List : ",deviceList);
+  onHangOffPress = () => {
+    NativeFunction.stopMeeting();
+    this.props.props.navigation.goBack();
   };
 
-  switchMicrophoneToSpeaker = () =>{
+  switchMicrophoneToSpeaker = () => {
     NativeFunction.switchMicrophoneToSpeaker()
-    .then(response => {
-      console.log(response);
-    })
-    .catch(error => {
-      console.error(error);
-    })
-  }
-  switchCamera = () => {
-    NativeFunction.switchCamera()
-      .then(response => {
+      .then((response) => {
         console.log(response);
       })
-      .catch(error => {
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+  switchCamera = () => {
+    NativeFunction.switchCamera()
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
         console.error(error);
       });
   };
@@ -244,7 +226,7 @@ export class Meeting extends React.Component {
     const currentMuted = this.state.mutedAttendee.includes(
       this.props.selfAttendeeId
     );
-    
+
     return (
       <View style={[styles.container, { justifyContent: "flex-start" }]}>
         <Text style={styles.title}>{this.props.meetingTitle}</Text>
@@ -253,7 +235,9 @@ export class Meeting extends React.Component {
             muted={currentMuted}
             onPress={() => NativeFunction.setMute(!currentMuted)}
           />
-          <SwitchMicrophoneToSpeakerButton onPress={this.switchMicrophoneToSpeaker} />
+          <SwitchMicrophoneToSpeakerButton
+            onPress={this.switchMicrophoneToSpeaker}
+          />
           <CameraButton
             disabled={this.state.selfVideoEnabled}
             onPress={() =>
@@ -261,23 +245,17 @@ export class Meeting extends React.Component {
             }
           />
           <SwitchCameraButton onPress={this.switchCamera} />
-          <HangOffButton onPress={() => NativeFunction.stopMeeting()} />
+          <HangOffButton onPress={this.onHangOffPress} />
         </View>
         <Text style={styles.title}>Video</Text>
         <View style={styles.videoContainer}>
           {this.state.videoTiles.length > 0 ? (
             this.state.videoTiles.map((tileId) => (
-              <View key={tileId} style={styles.videoTileContainer}>
-                <RNVideoRenderView
-                  style={styles.video}
-                  key={tileId}
-                  tileId={tileId}
-                  facingMode={this.state.cameraFacingMode}
-                />
-                {this.state.isRinging && (
-                  <Text style={styles.ringingText}>Ringing...</Text>
-                )}
-              </View>
+              <RNVideoRenderView
+                style={styles.video}
+                key={tileId}
+                tileId={tileId}
+              />
             ))
           ) : (
             <Text style={styles.subtitle}>
