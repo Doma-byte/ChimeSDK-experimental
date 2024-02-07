@@ -11,6 +11,7 @@ import {
   Image,
   Linking,
   useWindowDimensions,
+  AppStateStatus,
 } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { WebView } from "react-native-webview";
@@ -19,7 +20,7 @@ import Sound from "react-native-sound";
 import io from "socket.io-client";
 import ringtone from "../../assets/ringtone.mp3";
 import { NativeModules } from "react-native";
-import notifee, { EventType } from "@notifee/react-native";
+import notifee, { AndroidImportance, EventType } from "@notifee/react-native";
 
 const { RNRingtone } = NativeModules;
 
@@ -61,6 +62,7 @@ const Message = ({ route, navigation }) => {
           title: "Accept",
           pressAction: {
             id: "accept",
+            launchActivity: "default",
           },
         },
         {
@@ -80,6 +82,7 @@ const Message = ({ route, navigation }) => {
           presentation: {
             position: "head",
           },
+          importance: AndroidImportance.HIGH,
         },
       });
     } catch (error) {
@@ -148,6 +151,19 @@ const Message = ({ route, navigation }) => {
           }
         }
       });
+
+      notifee.onBackgroundEvent(async ({type, detail})=>{
+        if(type === EventType.ACTION_PRESS && detail){
+          if(detail.pressAction.id === "accept"){
+            RNRingtone.stop();
+            ring.release();
+            navigateToChimeScreen(detailsRef.current);
+          }else if(detail.pressAction.id === "reject"){
+            RNRingtone.stop();
+            ring.release();
+          }
+        }
+      })
     });
 
     return () => {
