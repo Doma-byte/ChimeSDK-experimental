@@ -1,5 +1,4 @@
 const express = require("express");
-const bodyParser = require("body-parser");
 const { v4: uuidv4 } = require("uuid"); // Use uuid package for UUID generation
 const AWS = require("aws-sdk");
 const cors = require("cors");
@@ -40,13 +39,13 @@ function create_UUID() {
 
 async function doMeeting(event) {
   const query = event.query;
-  console.log("Query :",query);
+  console.log("Query :", query);
   let meetingId = "";
   let meeting = null;
   let userName = "";
 
   const theBodyContent = event.body;
-  console.log("The body content :",theBodyContent);
+  console.log("The body content :", theBodyContent);
   meetingId = theBodyContent.MEETING_ID;
   userName = theBodyContent.USERNAME;
 
@@ -63,8 +62,6 @@ async function doMeeting(event) {
       })
       .promise();
   } else {
-    // Join existing meeting
-
     // Fetch meeting details
     try {
       meetingId = query.meetingId;
@@ -100,7 +97,7 @@ async function doMeeting(event) {
 
 async function deleteAttendee(event) {
   const body = event.body;
-  console.log("Exit meeting is :",body);
+  console.log("Exit meeting is :", body);
   const deleteRequest = await chime
     .deleteAttendee({
       MeetingId: body.MEETING_ID,
