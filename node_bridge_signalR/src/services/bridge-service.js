@@ -13,6 +13,15 @@ class BridgeService {
       throw { err };
     }
   }
+  async sendMessageService(msg){
+    try{
+      const msgDetails = await this.BrideRepository.sendMessage(msg);
+      return msgDetails;
+    }catch(err){  
+      console.log("Something went wrong in the service layer ");
+      throw { err };
+    }
+  }
 }
 
 module.exports = BridgeService;
