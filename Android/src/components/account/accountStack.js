@@ -4,7 +4,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import Login from "./login";
 import Signup from "./signup";
 
-const accountStack = (props) => {
+const accountStack = ({setName}) => {
   const Stack = createStackNavigator();
 
   return (
@@ -12,7 +12,9 @@ const accountStack = (props) => {
       initialRouteName="Login"
       screenOptions={{ headerShown: false }}
     >
-      <Stack.Screen name="Login" component={Login} options={{ title: "" }} />
+      <Stack.Screen name="Login">
+        {(props) => <Login {...props} setName={setName} />}
+      </Stack.Screen>
       <Stack.Screen
         name="Signup"
         component={Signup}

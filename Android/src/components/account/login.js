@@ -12,7 +12,7 @@ import {
   ScrollView,
 } from 'react-native';
 
-const Login = ({navigation}) => {
+const Login = ({navigation, setName}) => {
   const [email, setEmail] = useState(null);
   const [password, setPassword] = useState(null);
   const [error, setError] = useState('');
@@ -36,6 +36,7 @@ const Login = ({navigation}) => {
             };
             console.log('Value is : ', value);
             AsyncStorage.setItem('userName', JSON.stringify(value));
+            setName(JSON.stringify(value));
           });
       } catch (err) {
         console.log('Error : ', err);

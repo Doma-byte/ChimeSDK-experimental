@@ -17,7 +17,7 @@ const App = () => {
   return (
     <AuthCtx.Provider value={{userName, setName}}>
       <NavigationContainer>
-        {!userName ? <AccountStack /> : <UserStack />}
+        {!userName ? <AccountStack setName={setName}/> : <UserStack />}
       </NavigationContainer>
     </AuthCtx.Provider>
   );
