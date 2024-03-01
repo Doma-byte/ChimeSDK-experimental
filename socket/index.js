@@ -1,6 +1,6 @@
 const express = require("express");
 const http = require("http");
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require("uuid");
 require("dotenv").config();
 
 const app = express();
@@ -10,32 +10,38 @@ const io = require("socket.io")(server, {
     origin: "*",
   },
 });
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 const connectedUsers = {};
 
 app.get("/", (req, res) => {
   res.send("Hello world");
 });
 
+function generateRoomId(userId1, userId2) {
+  return [userId1, userId2].sort().join("-");
+}
+
 io.on("connection", (socket) => {
-  socket.on("join", (room) => {
-    console.log("Room is ", room);
-    socket.join(room, () => {
+  socket.on("joinRoom", ({ userId, friendId }) => {
+    const roomId = generateRoomId(userId, friendId);
+    socket.join(roomId, () => {
       console.log("Joined a room");
     });
-    connectedUsers[room] = socket.id;
+    connectedUsers[userId] = roomId;
     console.log("connected users is : ", connectedUsers);
   });
 
   socket.on("sendMessage", (msg) => {
-    const { senderId, recipientId, message } = msg;
+    const { senderId, recipientId, Message } = msg;
+    const roomId = generateRoomId(senderId, recipientId);
     console.log("MEssage is : ", msg);
-    io.emit("receiveMessage", msg);
+    console.log("Receive room is : ", roomId);
+    io.to(roomId).emit("receiveMessage", msg);
   });
 
-  socket.on("initiateAudioCall", details => {
+  socket.on("initiateAudioCall", (details) => {
     details.meetingId = uuidv4();
-    console.log("Meeting Id is : ",details);
+    console.log("Meeting Id is : ", details);
     try {
       io.emit("playRingtone", details);
       console.log("Success");
