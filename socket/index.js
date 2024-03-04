@@ -22,46 +22,46 @@ app.get("/", (req, res) => {
   res.send("Hello world");
 });
 
-app.post("/api/triggerSocketNotify", express.json(), (req,res)=>{
-  const {SenderID, recipientId, Message, tempId } = req.body;
-  const roomId = generateRoomId(SenderID,recipientId);
-  
-  io.in(roomId).emit("receiveMessage", {
-    SenderID,
-    recipientId,
-    Message,
-    tempId,
-  });
+app.post("/api/triggerSocketNotify", express.json(), (req, res) => {
+  try {
+    const { SenderID, recipientId, Message, tempId } = req.body;
+    const roomId = generateRoomId(SenderID, recipientId);
 
-  res.json({message: "Message send successfully"});
-})
+    io.in(roomId).emit("receiveMessage", {
+      SenderID,
+      recipientId,
+      Message,
+      tempId,
+    });
+
+    res.json({ message: "Message send successfully" });
+  } catch (err) {
+    console.log("Error in triggerSocketNotify : ", err);
+    res.status(500).json({
+      error: "Internal Server Error",
+    });
+  }
+});
 
 io.on("connection", (socket) => {
   socket.on("joinRoom", ({ userId, friendId }) => {
     const roomId = generateRoomId(userId, friendId);
     socket.join(roomId, () => {
       console.log("Joined a room", roomId);
-
     });
     connectedUsers[userId] = roomId;
     console.log("connected users is : ", connectedUsers);
   });
 
-  // socket.on("sendMessage", (msg) => {
-  //   const { senderId, recipientId, Message } = msg;
-  //   const roomId = generateRoomId(senderId, recipientId);
-  //   console.log("MEssage is : ", msg);
-  //   io.to(roomId).emit("receiveMessage", msg);
-  // });
-
   socket.on("initiateAudioCall", (details) => {
-    details.meetingId = uuidv4();
-    console.log("Meeting Id is : ", details);
+    const roomId = generateRoomId(details.callerId, details.recipientId);
     try {
-      io.emit("playRingtone", details);
-      console.log("Success");
+      details.meetingId = uuidv4();
+      details.roomId = roomId;
+      console.log("Meeting Id is : ", details);
+      io.in(roomId).emit("playRingtone", details);
     } catch (err) {
-      console.log("error : ", err);
+      console.log("Error in initiateAudioCall : ", err);
     }
   });
 
