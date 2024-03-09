@@ -11,7 +11,7 @@ const io = require("socket.io")(server, {
     origin: "*",
   },
 });
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 const connectedUsers = {};
 
 function generateRoomId(userId1, userId2) {
@@ -64,6 +64,26 @@ io.on("connection", (socket) => {
       console.log("Error in initiateAudioCall : ", err);
     }
   });
+
+  socket.on("callAccepted", (details) => {
+    console.log("Dtais are : ",details);
+    const roomId = generateRoomId(details.callerId, details.recipientId);
+    try{
+      io.in(roomId).emit("accept", details);
+    }catch(err){
+      console.log("Error in callAcceptance : ", err);
+    }
+  })
+
+  socket.on("endCall",(details)=>{
+    const roomId = generateRoomId(details.SenderId, details.receiverId);
+    try{
+      io.in(roomId).emit("cutCall", details);
+    }catch(err){
+      console.log("Error in callRejection : ",err);
+    }
+    console.log("Details are end call : ",details);
+  })
 
   socket.on("disconnect", () => {
     console.log("A user disconnected : ", socket.id);
