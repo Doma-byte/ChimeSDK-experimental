@@ -1,4 +1,4 @@
-const SERVER_URL = 'https://vuonmhwri0.execute-api.us-east-1.amazonaws.com/Prod/';
+const SERVER_URL = '';
 const SERVER_REGION = 'us-east-1';
 
 export function createMeetingRequest(meetingName, attendeeName) {
