@@ -24,14 +24,12 @@ app.get("/", (req, res) => {
 
 app.post("/api/triggerSocketNotify", express.json(), (req, res) => {
   try {
-    const { SenderID, recipientId, Message, tempId } = req.body;
-    const roomId = generateRoomId(SenderID, recipientId);
+    const msgResp = req.body;
+    const { SenderID, ReceiverID, Message, Id } = req.body;
+    const roomId = generateRoomId(SenderID, ReceiverID);
 
     io.in(roomId).emit("receiveMessage", {
-      SenderID,
-      recipientId,
-      Message,
-      tempId,
+      msgResp,
     });
 
     res.json({ message: "Message send successfully" });
@@ -44,13 +42,15 @@ app.post("/api/triggerSocketNotify", express.json(), (req, res) => {
 });
 
 io.on("connection", (socket) => {
-  socket.on("joinRoom", ({ userId, friendId }) => {
+  socket.on("joinRoom", ({ userId, friendId }, callback) => {
     const roomId = generateRoomId(userId, friendId);
     socket.join(roomId, () => {
       console.log("Joined a room", roomId);
     });
     connectedUsers[userId] = roomId;
     console.log("connected users is : ", connectedUsers);
+
+    callback({success: true, roomId: roomId});
   });
 
   socket.on("initiateAudioCall", (details) => {
